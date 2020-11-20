@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/knadh/otpgateway/models"
+	"github.com/zplzpl/otpgateway/models"
 )
 
 // ErrNotExist is thrown when an OTP (requested by namespace / ID)

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis"
-	"github.com/knadh/otpgateway/models"
+	"github.com/zplzpl/otpgateway/models"
 	"github.com/stretchr/testify/assert"
 )
 

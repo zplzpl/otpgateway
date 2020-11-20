@@ -8,9 +8,10 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strings"
 	"time"
 
-	"github.com/knadh/otpgateway/models"
+	"github.com/zplzpl/otpgateway/models"
 )
 
 const (
@@ -19,7 +20,7 @@ const (
 	addressName   = "Mobile number"
 	maxAddresslen = 10
 	maxOTPlen     = 6
-	apiURL        = "https://api-alerts.kaleyra.com/v4/"
+	apiURL        = "https://api.kaleyra.io/v1/"
 	statusOK      = "OK"
 )
 
@@ -34,6 +35,7 @@ type sms struct {
 type cfg struct {
 	RootURL      string `json:"RootURL"`
 	APIKey       string `json:"APIKey"`
+	SID          string `json:"SID"`
 	Sender       string `json:"Sender"`
 	Timeout      int    `json:"Timeout"`
 	MaxIdleConns int    `json:"MaxIdleConns"`
@@ -59,12 +61,14 @@ func New(jsonCfg []byte) (interface{}, error) {
 	if err := json.Unmarshal(jsonCfg, &c); err != nil {
 		return nil, err
 	}
+	if c.APIKey == "" || c.Sender == "" || c.SID == "" {
+		return nil, errors.New("invalid APIKey or Sender or SID")
+	}
 	if c.RootURL == "" {
 		c.RootURL = apiURL
 	}
-	if c.APIKey == "" || c.Sender == "" {
-		return nil, errors.New("invalid APIKey or Sender")
-	}
+
+	c.RootURL = strings.TrimRight(c.RootURL, "/") + "/" + c.SID + "/message"
 
 	// Initialize the HTTP client.
 	t := 5
@@ -121,15 +125,21 @@ func (s *sms) ValidateAddress(to string) error {
 
 // Push pushes out an SMS.
 func (s *sms) Push(otp models.OTP, subject string, body []byte) error {
+
 	var p = url.Values{}
-	p.Set("method", "sms")
-	p.Set("api_key", s.cfg.APIKey)
 	p.Set("sender", s.cfg.Sender)
 	p.Set("to", otp.To)
-	p.Set("message", string(body))
+	p.Set("body", string(body))
 
 	// Make the request.
-	resp, err := s.h.PostForm(s.cfg.RootURL, p)
+	req, err := http.NewRequest("POST", s.cfg.RootURL, strings.NewReader(p.Encode()))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("api-key", s.cfg.APIKey)
+
+	resp, err := s.h.Do(req)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,6 @@
 package otpgateway
 
-import "github.com/knadh/otpgateway/models"
+import "github.com/zplzpl/otpgateway/models"
 
 // ProviderConf represents the common configuration types for a Provider.
 type ProviderConf struct {
