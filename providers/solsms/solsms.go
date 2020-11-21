@@ -136,11 +136,13 @@ func (s *sms) Push(otp models.OTP, subject string, body []byte) error {
 
 	// Make the request.
 	req, err := http.NewRequest("POST", s.cfg.RootURL, strings.NewReader(p.Encode()))
+	log.Println(p.Encode())
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("api-key", s.cfg.APIKey)
+	log.Println(req)
 
 	resp, err := s.h.Do(req)
 	if err != nil {
