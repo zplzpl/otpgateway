@@ -19,7 +19,7 @@ const (
 	providerID    = "solsms"
 	channelName   = "SMS"
 	addressName   = "Mobile number"
-	maxAddresslen = 10
+	maxAddresslen = 11
 	maxOTPlen     = 6
 	apiURL        = "https://api.kaleyra.io/v1/"
 	statusOK      = "OK"
