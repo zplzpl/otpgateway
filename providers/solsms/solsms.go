@@ -44,9 +44,9 @@ type cfg struct {
 
 // solSMSAPIResp represents the response from solsms API.
 type solSMSAPIResp struct {
-	Status  string      `json:"status"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
+	Code string      `json:"code,omitempty"`
+	Id   string      `json:"id"`
+	Data interface{} `json:"data"`
 }
 
 // New returns an instance of the SMS package. cfg is configuration
@@ -70,8 +70,6 @@ func New(jsonCfg []byte) (interface{}, error) {
 	}
 
 	c.RootURL = strings.TrimRight(c.RootURL, "/") + "/" + c.SID + "/messages"
-
-	log.Println(c.RootURL)
 
 	// Initialize the HTTP client.
 	t := 5
@@ -136,7 +134,6 @@ func (s *sms) Push(otp models.OTP, subject string, body []byte) error {
 
 	// Make the request.
 	req, err := http.NewRequest("POST", s.cfg.RootURL, strings.NewReader(p.Encode()))
-	log.Println(p.Encode())
 	if err != nil {
 		return err
 	}
@@ -161,9 +158,15 @@ func (s *sms) Push(otp models.OTP, subject string, body []byte) error {
 	if err := json.Unmarshal(b, &r); err != nil {
 		return err
 	}
-	if r.Status != statusOK {
-		return errors.New(r.Message)
+
+	if r.Code != "" {
+		return errors.New(fmt.Sprintf("send sms error: %s", r.Code))
 	}
+
+	if r.Id == "" {
+		return errors.New("send sms id invalid")
+	}
+
 	return nil
 }
 
