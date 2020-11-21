@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -69,6 +70,8 @@ func New(jsonCfg []byte) (interface{}, error) {
 	}
 
 	c.RootURL = strings.TrimRight(c.RootURL, "/") + "/" + c.SID + "/message"
+
+	log.Println(c.RootURL)
 
 	// Initialize the HTTP client.
 	t := 5
