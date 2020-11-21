@@ -69,7 +69,7 @@ func New(jsonCfg []byte) (interface{}, error) {
 		c.RootURL = apiURL
 	}
 
-	c.RootURL = strings.TrimRight(c.RootURL, "/") + "/" + c.SID + "/message"
+	c.RootURL = strings.TrimRight(c.RootURL, "/") + "/" + c.SID + "/messages"
 
 	log.Println(c.RootURL)
 
